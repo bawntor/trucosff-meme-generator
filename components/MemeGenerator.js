@@ -99,3 +99,107 @@ const MemeGenerator = () => {
               <Smile className="h-5 w-5" />
             </button>
           </div>
+        </div>
+
+        <div className="space-y-2">
+          <label className="block text-sm font-medium">
+            Texto Inferior:
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={bottomText}
+              onChange={(e) => setBottomText(e.target.value)}
+              onFocus={() => setActiveInput('bottom')}
+              placeholder="Escribe el texto inferior..."
+              className="w-full p-2 border rounded-md"
+            />
+            <button
+              onClick={() => {
+                setShowEmojiPicker(!showEmojiPicker);
+                setActiveInput('bottom');
+              }}
+              className="p-2 border rounded-md hover:bg-gray-50"
+            >
+              <Smile className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+
+        {showEmojiPicker && (
+          <div className="p-2 bg-white border rounded-lg shadow-lg">
+            <div className="grid grid-cols-8 gap-2">
+              {emojis.map((emoji, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleEmojiClick(emoji)}
+                  className="text-xl hover:bg-gray-100 p-1 rounded"
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div ref={memeRef} className="relative">
+          <div className="relative w-full aspect-video bg-gray-100 rounded-lg overflow-hidden">
+            {imageUrl ? (
+              <>
+                <img
+                  src={imageUrl}
+                  alt="Imagen del meme"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute top-4 left-0 right-0 text-center">
+                  <h2 className="text-2xl font-bold text-white uppercase break-words px-4 shadow-text">
+                    {topText || ""}
+                  </h2>
+                </div>
+                <div className="absolute bottom-4 left-0 right-0 text-center">
+                  <h2 className="text-2xl font-bold text-white uppercase break-words px-4 shadow-text">
+                    {bottomText || ""}
+                  </h2>
+                </div>
+                <div className="absolute bottom-1 right-1 opacity-70">
+                  <img
+                    src="https://trucosff.com/wp-content/uploads/2024/05/cropped-TRUCOSFF-200x40.png"
+                    alt="TrucosFF"
+                    className="h-6 object-contain"
+                  />
+                </div>
+              </>
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-400">
+                <p>Sube una imagen para crear tu meme</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <button
+          onClick={handleDownload}
+          disabled={!imageUrl}
+          className={`w-full font-bold py-2 px-4 rounded ${
+            imageUrl 
+              ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+          }`}
+        >
+          Descargar Meme
+        </button>
+      </div>
+
+      <style jsx global>{`
+        .shadow-text {
+          text-shadow: 2px 2px 0 #000,
+                      -2px -2px 0 #000,
+                      2px -2px 0 #000,
+                      -2px 2px 0 #000;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default MemeGenerator;
