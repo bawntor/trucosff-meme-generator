@@ -172,34 +172,3 @@ const MemeGenerator = () => {
             ) : (
               <div className="flex items-center justify-center h-full text-gray-400">
                 <p>Sube una imagen para crear tu meme</p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <button
-          onClick={handleDownload}
-          disabled={!imageUrl}
-          className={`w-full font-bold py-2 px-4 rounded ${
-            imageUrl 
-              ? 'bg-blue-600 hover:bg-blue-700 text-white' 
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          }`}
-        >
-          Descargar Meme
-        </button>
-      </div>
-
-      <style jsx global>{`
-        .shadow-text {
-          text-shadow: 2px 2px 0 #000,
-                      -2px -2px 0 #000,
-                      2px -2px 0 #000,
-                      -2px 2px 0 #000;
-        }
-      `}</style>
-    </div>
-  );
-};
-
-export default MemeGenerator;
