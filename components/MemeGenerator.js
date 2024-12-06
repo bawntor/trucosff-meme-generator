@@ -1,5 +1,4 @@
-import React, { useState, useRef } from 'react';
-import { toPng } from 'html-to-image';
+import React, { useState, useRef, useEffect } from 'react';
 import { Smile, Upload } from 'lucide-react';
 
 const MemeGenerator = () => {
@@ -8,7 +7,7 @@ const MemeGenerator = () => {
   const [bottomText, setBottomText] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [activeInput, setActiveInput] = useState(null);
-  const memeRef = useRef(null);
+  const canvasRef = useRef(null);
   const fileInputRef = useRef(null);
 
   const emojis = [
@@ -32,22 +31,66 @@ const MemeGenerator = () => {
     }
   };
 
-  const handleDownload = async () => {
+  const drawMeme = (ctx, image) => {
+    // Dibuja la imagen
+    ctx.drawImage(image, 0, 0, ctx.canvas.width, ctx.canvas.height);
+
+    // Configura el estilo del texto
+    ctx.fillStyle = 'white';
+    ctx.strokeStyle = 'black';
+    ctx.lineWidth = 4;
+    ctx.textAlign = 'center';
+    ctx.font = 'bold 32px Arial';
+
+    // Dibuja el texto superior
+    if (topText) {
+      ctx.strokeText(topText, ctx.canvas.width / 2, 40);
+      ctx.fillText(topText, ctx.canvas.width / 2, 40);
+    }
+
+    // Dibuja el texto inferior
+    if (bottomText) {
+      ctx.strokeText(bottomText, ctx.canvas.width / 2, ctx.canvas.height - 20);
+      ctx.fillText(bottomText, ctx.canvas.width / 2, ctx.canvas.height - 20);
+    }
+
+    // Dibuja el logo
+    const logo = new Image();
+    logo.src = 'https://trucosff.com/wp-content/uploads/2024/05/cropped-TRUCOSFF-200x40.png';
+    logo.onload = () => {
+      ctx.globalAlpha = 0.7;
+      ctx.drawImage(logo, ctx.canvas.width - 100, ctx.canvas.height - 30, 90, 20);
+      ctx.globalAlpha = 1.0;
+    };
+  };
+
+  const handleDownload = () => {
     if (!imageUrl) {
       alert('Por favor, sube una imagen primero');
       return;
     }
+
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const image = new Image();
+    image.crossOrigin = "Anonymous";
+    image.src = imageUrl;
     
-    try {
-      const dataUrl = await toPng(memeRef.current, { quality: 0.95 });
-      const link = document.createElement('a');
-      link.download = `trucosff-meme-${Date.now()}.png`;
-      link.href = dataUrl;
-      link.click();
-    } catch (err) {
-      console.error('Error al descargar el meme:', err);
-      alert('Hubo un error al descargar el meme. Por favor, intenta de nuevo.');
-    }
+    image.onload = () => {
+      canvas.width = image.width;
+      canvas.height = image.height;
+      drawMeme(ctx, image);
+      
+      try {
+        const link = document.createElement('a');
+        link.download = `trucosff-meme-${Date.now()}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      } catch (err) {
+        console.error('Error al descargar:', err);
+        alert('Hubo un error al descargar. Por favor, intenta de nuevo.');
+      }
+    };
   };
 
   return (
@@ -142,7 +185,7 @@ const MemeGenerator = () => {
           </div>
         )}
 
-        <div ref={memeRef} className="relative">
+        <div className="relative">
           <div className="relative w-full aspect-video bg-gray-100 rounded-lg overflow-hidden">
             {imageUrl ? (
               <>
@@ -172,3 +215,36 @@ const MemeGenerator = () => {
             ) : (
               <div className="flex items-center justify-center h-full text-gray-400">
                 <p>Sube una imagen para crear tu meme</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <canvas ref={canvasRef} style={{ display: 'none' }} />
+
+        <button
+          onClick={handleDownload}
+          disabled={!imageUrl}
+          className={`w-full font-bold py-2 px-4 rounded ${
+            imageUrl 
+              ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+          }`}
+        >
+          Descargar Meme
+        </button>
+      </div>
+
+      <style jsx global>{`
+        .shadow-text {
+          text-shadow: 2px 2px 0 #000,
+                      -2px -2px 0 #000,
+                      2px -2px 0 #000,
+                      -2px 2px 0 #000;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default MemeGenerator;
